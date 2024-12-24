@@ -109,23 +109,26 @@
       gap: 20px;
     }
 
-    .card {
-      background-color: var(--card-bg);
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      padding: 10px;
-      text-decoration: none;
-      color: inherit;
-      transition: background-color 0.3s ease, transform 0.3s ease;
-      position: relative;
-      height: var(--card-size);
-      overflow: hidden;
-    }
+  .card {
+    background-color: var(--card-bg);
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 15px;
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.3s ease;
+    position: relative;
+    height: var(--card-size);
+    overflow: hidden;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
 
-    .card:hover {
-      background-color: var(--card-hover);
-      transform: scale(1.02);
-    }
+.card:hover {
+    background-color: var(--card-hover);
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
 
     .card img {
       width: 100%;
@@ -369,40 +372,48 @@
     });
 
     // Рендеринг карточек
-    function renderCards() {
-      cardGrid.innerHTML = '';
-      const searchQuery = searchInput.value.toLowerCase();
-      const selectedCategory = categorySelect.value;
+  function renderCards() {
+    cardGrid.innerHTML = '';
+    const searchQuery = searchInput.value.toLowerCase();
+    const selectedCategory = categorySelect.value;
 
-      cards
+    cards
         .filter(card => {
-          const matchesSearch = card.title.toLowerCase().includes(searchQuery) ||
+            const matchesSearch = card.title.toLowerCase().includes(searchQuery) ||
                                 card.tags.some(tag => tag.toLowerCase().includes(searchQuery)) ||
                                 card.category.toLowerCase().includes(searchQuery);
-          const matchesCategory = selectedCategory === 'all' || card.category === selectedCategory;
-          return matchesSearch && matchesCategory;
+            const matchesCategory = selectedCategory === 'all' || card.category === selectedCategory;
+            return matchesSearch && matchesCategory;
         })
         .forEach((card, index) => {
-          const cardElement = document.createElement('div');
-          cardElement.className = 'card';
-          cardElement.innerHTML = `
-            ${card.image ? `<img src="${card.image}" alt="${card.title}">` : ''}
-            <h3>${card.title}</h3>
-            <div class="tag-container">
-              ${card.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
-            </div>
-            <p class="notes">${card.notes}</p>
-          `;
+            const cardElement = document.createElement('div');
+            cardElement.className = 'card';
+            cardElement.innerHTML = `
+                ${card.image ? `<img src="${card.image}" alt="${card.title}">` : ''}
+                <h3>${card.title}</h3>
+                <div class="tag-container">
+                    ${card.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+                </div>
+                <p class="notes">${card.notes}</p>
+            `;
 
-          cardElement.addEventListener('contextmenu', (e) => {
-            e.preventDefault();
-            showContextMenu(e, index);
-          });
+            // Обработчик клика для перехода по ссылке
+            cardElement.addEventListener('click', (e) => {
+                // Проверяем, что клик не был на контекстном меню
+                if (!e.target.closest('.context-menu')) {
+                    window.open(card.link, '_blank');
+                }
+            });
 
-          cardGrid.appendChild(cardElement);
+            // Обработчик контекстного меню
+            cardElement.addEventListener('contextmenu', (e) => {
+                e.preventDefault();
+                showContextMenu(e, index);
+            });
+
+            cardGrid.appendChild(cardElement);
         });
-    }
-
+}
     // Контекстное меню
     function showContextMenu(event, index) {
       const existingMenu = document.querySelector('.context-menu');
